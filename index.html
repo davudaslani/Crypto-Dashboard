@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CryptoSignal Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+  <!-- TICKER -->
+  <div id="ticker-wrap">
+    <div id="ticker-inner">Lade Marktdaten...</div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <span class="logo">CRYPTO<span>SIGNAL</span> PRO</span>
+    <div class="header-right">
+      <span class="live-dot"></span>
+      <span id="last-updated">Wird geladen...</span>
+      <button onclick="loadAll()">↻ REFRESH</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- GLOBALE STATS -->
+    <p class="section-label">◈ Globaler Markt</p>
+    <div class="grid-4">
+      <div class="stat-card glowing">
+        <div class="stat-label">Total Market Cap</div>
+        <div class="stat-value" id="g-mcap">—</div>
+        <div class="stat-sub" id="g-mcap-chg">24h Änderung</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">24h Volumen</div>
+        <div class="stat-value" id="g-vol">—</div>
+        <div class="stat-sub" id="g-vol-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">BTC Dominanz</div>
+        <div class="stat-value" id="g-btcd">—</div>
+        <div class="stat-sub" id="g-ethd"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Aktive Coins</div>
+        <div class="stat-value" id="g-coins">—</div>
+        <div class="stat-sub" id="g-markets"></div>
+      </div>
+    </div>
+
+    <!-- HAUPT-GRID: Tabelle links, Panel rechts -->
+    <p class="section-label">◈ Top Coins & Signale</p>
+    <div class="grid-main">
+
+      <!-- COIN-TABELLE -->
+      <div class="card">
+        <div class="card-title">
+          Top 12 Kryptowährungen
+          <span id="table-updated"></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="coin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Coin</th>
+                <th class="r">Preis</th>
+                <th class="r">1h</th>
+                <th class="r">24h</th>
+                <th class="r">7d</th>
+                <th class="r">Market Cap</th>
+              </tr>
+            </thead>
+            <tbody id="coin-tbody">
+              <tr><td colspan="7" class="loading-cell">Lade Daten...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RECHTES PANEL -->
+      <div class="right-panel">
+
+        <!-- FEAR & GREED -->
+        <div class="card">
+          <div class="card-title">Fear & Greed Index</div>
+          <div id="fear-greed-widget">
+            <svg width="180" height="100" viewBox="0 0 180 100" style="display:block;margin:0 auto">
+              <path d="M 15 85 A 75 75 0 0 1 165 85" fill="none" stroke="#1e2d47" stroke-width="14" stroke-linecap="round"/>
+              <path id="fg-arc" d="M 15 85 A 75 75 0 0 1 165 85" fill="none" stroke="#22d3ee" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 236"/>
+              <line id="fg-needle" x1="90" y1="85" x2="90" y2="20" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/>
+              <circle id="fg-dot" cx="90" cy="85" r="6" fill="#22d3ee"/>
+            </svg>
+            <div id="fg-num" class="fg-num">—</div>
+            <div id="fg-label" class="fg-label">Wird geladen</div>
+            <div id="fg-time" class="fg-sub"></div>
+          </div>
+        </div>
+
+        <!-- KI SIGNAL -->
+        <div class="card">
+          <div class="card-title">KI Trading Signal — Heute</div>
+          <div id="ki-badge-wrap" style="margin-bottom:10px">
+            <span class="signal-badge signal-loading" id="ki-badge">ANALYSIERE...</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px">
+              <span>Trading Score</span>
+              <span id="ki-score-num">—/10</span>
+            </div>
+            <div class="score-bar-bg">
+              <div id="ki-score-bar" class="score-bar-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <div id="ki-summary" class="ki-summary-text"></div>
+        </div>
+
+        <!-- TRENDING -->
+        <div class="card">
+          <div class="card-title">Trending Coins <span>24h</span></div>
+          <div id="trending-list">Lade...</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHARTS ZEILE -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Bitcoin — 14 Tage <span id="btc-chg-label"></span></div>
+        <div style="position:relative;height:180px">
+          <canvas id="btc-chart" role="img" aria-label="Bitcoin 14 Tage Chart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Markt Dominanz</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="flex:1;position:relative;height:160px">
+            <canvas id="dom-chart" role="img" aria-label="Markt Dominanz Donut Chart"></canvas>
+          </div>
+          <div id="dom-legend" style="font-size:11px;display:flex;flex-direction:column;gap:6px;min-width:120px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KI ANALYSE SECTION -->
+    <p class="section-label">◈ KI Trading Analyse</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Wochentag-Heatmap <span>KI-Gestützt</span></div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+        <div id="heatmap-hint" class="heatmap-hint"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Key Support / Resistance</div>
+        <div id="key-levels"></div>
+        <div style="margin-top:14px">
+          <div class="card-title">Wochenausblick</div>
+          <div class="outlook-box" id="weekly-outlook">Wird analysiert...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Bullishe Signale <span style="color:var(--green)">▲</span></div>
+        <ul class="signal-list" id="bull-list"><li style="color:var(--text3)">Analysiere...</li></ul>
+        <div style="margin-top:14px">
+          <div class="card-title">Bearishe Signale <span style="color:var(--red)">▼</span></div>
+          <ul class="signal-list" id="bear-list"><li style="color:var(--text3)">Analysiere...</li></ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">KI Markt-Briefing</div>
+        <div class="ai-brief" id="ai-brief">Analysiere Marktdaten...</div>
+        <div class="ai-top-trade" id="ai-top-trade" style="display:none"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    ◈ CryptoSignal Pro — Daten: CoinGecko &amp; Alternative.me &nbsp;|&nbsp;
+    KI-Analyse: Claude by Anthropic &nbsp;|&nbsp;
+    Nur zu Informationszwecken — kein Finanzberater
+  </footer>
+
+  <!-- JS-Dateien: Reihenfolge wichtig! config zuerst -->
+  <script src="js/config.js"></script>
+  <script src="js/market.js"></script>
+  <script src="js/sentiment.js"></script>
+  <script src="js/ai.js"></script>
+
+  <!-- Hauptlogik: startet alles -->
+  <script>
+    async function loadAll() {
+      document.getElementById('last-updated').textContent = 'Aktualisiere...';
+      await Promise.all([ladeMarkt(), ladeFearGreed()]);
+      await ladeKI();
+      document.getElementById('last-updated').textContent =
+        'Zuletzt: ' + new Date().toLocaleTimeString('de-DE');
+    }
+
+    loadAll();
+    setInterval(loadAll, 300000); // alle 5 Minuten
+  </script>
+
+</body>
+</html>
